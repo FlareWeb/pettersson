@@ -1,8 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { TodoResolver } from './todo.resolver';
-import { TodoService } from './todo.service';
+import { Test, TestingModule } from "@nestjs/testing";
 
-describe('TodoResolver', () => {
+import { TodoResolver } from "./todo.resolver";
+import { TodoService } from "./todo.service";
+
+describe("TodoResolver", () => {
   let resolver: TodoResolver;
 
   beforeEach(async () => {
@@ -13,7 +14,7 @@ describe('TodoResolver', () => {
     resolver = module.get<TodoResolver>(TodoResolver);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(resolver).toBeDefined();
   });
 });

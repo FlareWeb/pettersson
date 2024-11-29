@@ -4,11 +4,10 @@ import { GraphQLModule } from "@nestjs/graphql";
 
 import { join } from "path";
 
-import { AppController } from "@/app.controller";
-import { AppService } from "@/app.service";
-import { TodoModule } from "@/todo/todo.module";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+import { TodoModule } from "./todo/todo.module";
 
-// TODO: Sort imports
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
