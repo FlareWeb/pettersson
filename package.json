@@ -1,8 +1,12 @@
 {
   "name": "petersson",
   "version": "1.0.0",
-  "main": "index.js",
   "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "compile": "tsc",
+    "start": "yarn compile && node dist/index.js"
+  },
   "dependencies": {
     "@apollo/server": "^4.11.2",
     "class-validator": "^0.14.1",
@@ -12,6 +16,7 @@
     "type-graphql": "^2.0.0-rc.2"
   },
   "devDependencies": {
+    "prettier": "^3.4.1",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.1",
     "nodemon": "^3.1.7",
