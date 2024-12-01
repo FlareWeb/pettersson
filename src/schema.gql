@@ -1,0 +1,30 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Query {
+  substitutionsForDate(date: DateTime!): [Substitution!]!
+  todaySubstitutions: [Substitution!]!
+}
+
+type Substitution {
+  class: String!
+  note: String
+  period: Float!
+  room: String!
+  status: SubstitutionStatus!
+  subject: String!
+  substitute: String!
+}
+
+enum SubstitutionStatus {
+  CANCELLED
+  ROOM_CHANGE
+  STANDARD
+  SUBSTITUTION
+}
