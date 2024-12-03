@@ -2,6 +2,7 @@ import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { GraphQLModule } from "@nestjs/graphql";
+import { ScheduleModule } from "@nestjs/schedule";
 
 import { join } from "path";
 
@@ -11,14 +12,14 @@ import { UntisModule } from "@/untis/untis.module";
 
 @Module({
   imports: [
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
-      playground: true,
-      autoSchemaFile: join(process.cwd(), "src/schema.gql"),
-      sortSchema: true,
-    }),
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    ScheduleModule.forRoot(),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), "src/schema.gql"),
+      sortSchema: true,
     }),
     UntisModule,
   ],
