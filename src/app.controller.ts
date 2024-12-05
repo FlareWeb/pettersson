@@ -8,6 +8,7 @@ export class AppController {
 
   @Get()
   getHello(): string {
+    // TODO: Remove
     return this.appService.getHello();
   }
 }

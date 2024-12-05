@@ -4,7 +4,7 @@ import { Substitution } from "./entities/substitution.entity";
 import { UntisService } from "./untis.service";
 
 // TODO: Make this authorized
-@Resolver()
+@Resolver(() => Substitution)
 export class UntisResolver {
   constructor(private readonly untisService: UntisService) {}
 

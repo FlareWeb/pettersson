@@ -3,7 +3,13 @@ import { ConfigService } from "@nestjs/config";
 import { Cron, CronExpression } from "@nestjs/schedule";
 
 import { createHash } from "crypto";
-import { WebAPITimetable, WebUntis, WebUntisElementType } from "webuntis";
+import {
+  TimeUnit,
+  WebAPITimetable,
+  WebUntis,
+  WebUntisDay,
+  WebUntisElementType,
+} from "webuntis";
 
 import { Substitution, UntisCellState } from "./entities/substitution.entity";
 
@@ -13,6 +19,7 @@ export class UntisService implements OnModuleInit {
   private untis: WebUntis;
   private readonly logger = new Logger(UntisService.name);
   private readonly substitutions: Map<number, Substitution[]> = new Map();
+  private readonly timegrid: Map<WebUntisDay, TimeUnit[]> = new Map(); // TODO: THIS DATA IS ONLY FETCHED ONCE!
   private lastTimetableHash: string = "";
   private lastUpdateTime: number = 0;
 
@@ -28,6 +35,7 @@ export class UntisService implements OnModuleInit {
   async onModuleInit() {
     this.logger.debug("App is starting. Running initial timetable fetch...");
     try {
+      await this.fetchTimegrid();
       await this.checkForTimetableChanges();
     } catch (error) {
       this.logger.error("Failed during initial timetable fetch:", error);
@@ -43,6 +51,15 @@ export class UntisService implements OnModuleInit {
       this.logger.error("Failed to login to WebUntis:", error);
       throw new Error("Failed to connect to WebUntis");
     }
+  }
+
+  private async fetchTimegrid() {
+    this.logger.debug("Fetching timegrid...");
+
+    await this.ensureLogin();
+
+    const timegrid = await this.untis.getTimegrid();
+    for (const day of timegrid) this.timegrid.set(day.day, day.timeUnits);
   }
 
   private async fetchTimetable(): Promise<WebAPITimetable[]> {
@@ -83,6 +100,24 @@ export class UntisService implements OnModuleInit {
     return timetable;
   }
 
+  private getPeriod(lesson: WebAPITimetable): number {
+    const startTime = lesson.startTime;
+    const endTime = lesson.endTime;
+    const day = WebUntis.convertUntisDate(lesson.date.toString()).getDay() + 1; // TODO: Goofy ahh skibidi performance
+
+    const daySchedule = this.timegrid.get(day);
+    if (!daySchedule)
+      throw new Error(`No schedule found for day ${WebUntisDay[day]}`);
+
+    const periodName = daySchedule.find(
+      (unit) =>
+        (startTime >= unit.startTime && startTime < unit.endTime) ||
+        (endTime > unit.startTime && endTime <= unit.endTime) ||
+        (startTime <= unit.startTime && endTime >= unit.endTime)
+    ).name;
+    return parseInt(periodName);
+  }
+
   private generateTimetableHash(timetable: WebAPITimetable[]): string {
     const timetableString = JSON.stringify(timetable);
     return createHash("md5").update(timetableString).digest("hex");
@@ -98,25 +133,29 @@ export class UntisService implements OnModuleInit {
 
     this.substitutions.clear();
 
-    const processedLessonIds = new Set<number>();
-
-    for (const lesson of timetable) {
+    const lessonGroups = timetable.reduce((groups, lesson) => {
       const status = lesson.cellState as UntisCellState; // TODO: Possibly use lesson.is. ... instead
-      // If is substitution and has not been processed yet -> create substitution
-      if (
-        IGNORED_STATUSES.has(status) ||
-        processedLessonIds.has(lesson.lessonId)
-      )
-        continue;
+      if (IGNORED_STATUSES.has(status)) return groups;
 
-      const substitution = Substitution.parse(lesson);
+      const lessonId = lesson.lessonId;
+      if (!groups.has(lessonId)) groups.set(lessonId, []);
+      groups.get(lessonId).push(lesson);
 
-      const dateSubstitutions = this.substitutions.get(lesson.date) || [];
-      if (!this.substitutions.has(lesson.date))
-        this.substitutions.set(lesson.date, []);
+      return groups;
+    }, new Map<number, WebAPITimetable[]>()); // TODO: Maybe don't store the lessonId here
 
-      dateSubstitutions.push(substitution);
-      processedLessonIds.add(lesson.lessonId);
+    for (const lessons of lessonGroups.values()) {
+      const lesson = lessons[0];
+      const periods = lessons
+        .map((lesson) => this.getPeriod(lesson))
+        .filter((value, index, self) => self.indexOf(value) === index)
+        .sort((a, b) => a - b);
+
+      const substitution = Substitution.from(lesson, periods);
+
+      const date = lesson.date;
+      if (!this.substitutions.has(date)) this.substitutions.set(date, []);
+      this.substitutions.get(date).push(substitution);
     }
   }
 
