@@ -7,8 +7,8 @@ registerEnumType(WebUntisElementType, {
 });
 
 export enum SubstitutionStatus {
-  SUBSTITUTION = "SUBSTITUTION",
   ROOM_CHANGE = "ROOM_CHANGE",
+  SUBSTITUTION = "SUBSTITUTION",
   RESCHEDULED = "RESCHEDULED",
   CANCELLED = "CANCELLED",
 }
@@ -26,13 +26,13 @@ export class Substitution {
   subject: string;
 
   @Field(() => [String])
-  teacher: string[];
+  teachers: string[];
 
   @Field(() => [String])
-  class: string[];
+  classes: string[];
 
   @Field(() => [String])
-  room: string[];
+  rooms: string[];
 
   @Field(() => String, { nullable: true })
   note?: string;
@@ -47,11 +47,11 @@ export class Substitution {
     // TODO: longName should also be shown when the user clicks on the substitution | preferably alternateName over longName
     substitution.subject = lesson.subjects[0]?.element.displayname;
     // TODO: THIS IS NOT THE SUBSTITUTE | remove --- and duplicates
-    substitution.teacher = lesson.teachers.map((t) => t.element.name);
-    substitution.class = lesson.classes.length
+    substitution.teachers = lesson.teachers.map((t) => t.element.name);
+    substitution.classes = lesson.classes.length
       ? lesson.classes.map((c) => c.element.displayname)
       : [lesson.studentGroup];
-    substitution.room = lesson.rooms.map((r) => r.element.displayname);
+    substitution.rooms = lesson.rooms.map((r) => r.element.displayname);
     substitution.note = lesson.substText || lesson.periodText || undefined; // Teachers don't know how to use untis bruh
 
     // TODO: Use lesson.is... instead

@@ -14,13 +14,13 @@ type Query {
 }
 
 type Substitution {
-  class: [String!]!
+  classes: [String!]!
   note: String
   periods: [Float!]!
-  room: [String!]!
+  rooms: [String!]!
   status: SubstitutionStatus!
   subject: String!
-  teacher: [String!]!
+  teachers: [String!]!
 }
 
 enum SubstitutionStatus {
