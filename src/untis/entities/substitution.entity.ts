@@ -57,10 +57,10 @@ export class Substitution {
     // TODO: Use lesson.is... instead
     substitution.status = (() => {
       switch (lesson.cellState as UntisCellState) {
-        case "SUBSTITUTION":
-          return SubstitutionStatus.SUBSTITUTION;
         case "ROOMSUBSTITUTION":
           return SubstitutionStatus.ROOM_CHANGE;
+        case "SUBSTITUTION":
+          return SubstitutionStatus.SUBSTITUTION;
         case "SHIFT":
           return SubstitutionStatus.RESCHEDULED; // TODO: Handle special cases (like send updated times when provided)
         case "CANCEL":
