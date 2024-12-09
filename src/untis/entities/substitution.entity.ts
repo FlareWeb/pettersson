@@ -50,8 +50,10 @@ export class Substitution {
       subject.longName.length > 16 || subject.longName.split(" ").length > 1 // If has more than one space, show displayname (short)
         ? subject.alternatename || subject.displayname
         : subject.longName;
-    // TODO: THIS IS NOT THE SUBSTITUTE | remove --- and duplicates
-    substitution.teachers = lesson.teachers.map((t) => t.element.name);
+    // TODO: THIS IS NOT THE SUBSTITUTE | remove ---
+    substitution.teachers = lesson.teachers
+      .map((t) => t.element.name)
+      .filter((t, i, arr) => arr.indexOf(t) === i);
     substitution.classes = lesson.classes.length
       ? lesson.classes.map((c) => c.element.displayname)
       : [lesson.studentGroup];
