@@ -45,7 +45,11 @@ export class Substitution {
 
     substitution.periods = periods;
     // TODO: longName should also be shown when the user clicks on the substitution | preferably alternateName over longName
-    substitution.subject = lesson.subjects[0]?.element.displayname;
+    const subject = lesson.subjects[0]?.element;
+    substitution.subject =
+      subject.longName.length > 16 || subject.longName.split(" ").length > 1 // If has more than one space, show displayname (short)
+        ? subject.alternatename || subject.displayname
+        : subject.longName;
     // TODO: THIS IS NOT THE SUBSTITUTE | remove --- and duplicates
     substitution.teachers = lesson.teachers.map((t) => t.element.name);
     substitution.classes = lesson.classes.length
