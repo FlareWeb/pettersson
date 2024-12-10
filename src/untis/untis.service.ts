@@ -137,12 +137,13 @@ export class UntisService implements OnModuleInit {
       const status = lesson.cellState as UntisCellState; // TODO: Possibly use lesson.is. ... instead
       if (IGNORED_STATUSES.has(status)) return groups;
 
-      const lessonId = lesson.lessonId;
-      if (!groups.has(lessonId)) groups.set(lessonId, []);
-      groups.get(lessonId).push(lesson);
+      const groupKey = `${lesson.lessonId}_${lesson.date}`;
+
+      if (!groups.has(groupKey)) groups.set(groupKey, []);
+      groups.get(groupKey).push(lesson);
 
       return groups;
-    }, new Map<number, WebAPITimetable[]>()); // TODO: Maybe don't store the lessonId here
+    }, new Map<string, WebAPITimetable[]>());
 
     for (const lessons of lessonGroups.values()) {
       const lesson = lessons[0];
